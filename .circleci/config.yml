@@ -1,5 +1,23 @@
 version: 2.1
-
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # to:
+      #   type: string
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation describe-stack-events \
+            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" 
+            aws cloudformation describe-stack-events \
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" 
+            aws cloudformation delete-stack \
+            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" 
+            aws cloudformation delete-stack \
+            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 jobs:
   build-frontend:
     docker:
@@ -106,6 +124,11 @@ jobs:
     steps:
       - checkout
       - run:
+          name: install tar and gzip
+          command: |
+            sudo yum install tar
+            sudo yum install gzip
+      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
@@ -126,12 +149,14 @@ jobs:
           command: |
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:Project,Values=udacity" \
+            --filters "Name=tag:project,Values=udapeople" \
             --output text >> .circleci/ansible/inventory.txt
-      # - persist_to_workspace:
-      #     root: ~/
-      #     paths:
-      #       - project/.circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      - destroy-environment:
+          when: on_fail
       # Here's where you will add some code to rollback on failure
 
 workflows:
