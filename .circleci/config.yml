@@ -146,6 +146,8 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=udapeople" \
             --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+
           #append to inventory file, change as necessary
       - persist_to_workspace:
           root: ~/
@@ -170,16 +172,19 @@ jobs:
       - run:
           name: Install tar
           command: |
-            scratch # apk add --no-cache tar
+            /scratch # apk add --no-cache tar
             fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/APKINDEX.tar.gz
             fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/community/x86_64/APKINDEX.tar.gz
 
       - run:
+          name: Install aws-cli
+          command: |
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+      - run:
           name: Configure server
           command: |
-            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
 
-      # Here's where you will add some code to rollback on failure
       - destroy-environment
 
 workflows:
