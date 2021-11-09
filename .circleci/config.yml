@@ -7,10 +7,6 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation describe-stack-events \
-            --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" 
-            aws cloudformation describe-stack-events \
-            --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" 
             aws cloudformation delete-stack \
             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" 
             aws cloudformation delete-stack \
@@ -24,7 +20,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            export SUCCESS = $(curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            export SUCCESS=$(curl -H "Content-Type: text/plain" -H "token:${CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
              cd ~/project/backend
@@ -225,7 +221,7 @@ jobs:
           name: Run migrations
           command: |
             rm -rf node_modules
-            rm package-lock.json yarn.lock
+            rm package-lock.json 
             npm cache clear --force
             sudo npm install
             cd backend
