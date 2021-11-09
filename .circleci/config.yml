@@ -15,6 +15,7 @@ commands:
             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" 
             aws cloudformation delete-stack \
             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "[web]" > .circleci/ansible/inventory.txt
 jobs:
   build-frontend:
     docker:
@@ -54,7 +55,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout # Checkout code from git
+      - checkout
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -63,13 +64,12 @@ jobs:
             cd frontend
             npm install
             npm run test
-    # Your job code here
 
   test-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout # Checkout code from git
+      - checkout
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -78,14 +78,12 @@ jobs:
             cd backend
             npm install
             npm run test
-      # Your job code here
-      #some more comments for a commit
 
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout # Checkout code from git
+      - checkout
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -102,7 +100,7 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout # Checkout code from git
+      - checkout
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -122,8 +120,7 @@ jobs:
       - checkout
       - run:
           name: install tar and gzip
-          command: |
-
+          command: | #yum because amazon linux
             yum install -y tar
             yum install -y gzip
       - run:
@@ -149,6 +146,7 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=udapeople" \
             --output text >> .circleci/ansible/inventory.txt
+          #append to inventory file, change as necessary
       - persist_to_workspace:
           root: ~/
           paths:
@@ -162,12 +160,19 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["16:19:27:4e:67:e5:2a:e5:d8:8d:97:b3:7e:f2:41:06"]
-      - attach workspace:
+      - attach_workspace:
           at: ~/
       - run:
-          name: Install dependencies
+          name: Install ansible
           command: |
             apk add --update ansible
+
+      - run:
+          name: Install tar
+          command: |
+            scratch # apk add --no-cache tar
+            fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/APKINDEX.tar.gz
+            fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/community/x86_64/APKINDEX.tar.gz
 
       - run:
           name: Configure server
@@ -175,6 +180,7 @@ jobs:
             ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
 
       # Here's where you will add some code to rollback on failure
+      - destroy-environment
 
 workflows:
   default:
