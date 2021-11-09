@@ -224,10 +224,12 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            cd backend
+            rm -rf node_modules
+            rm package-lock.json yarn.lock
+            npm cache clear --force
             sudo npm install
-            # npm audit fix --audit-level=critical --force
-            # sudo npm run build
+            cd backend
+
             sudo npm run migrations > migration.txt
             cat migration.txt
 
