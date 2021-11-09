@@ -172,13 +172,15 @@ jobs:
           name: Install aws-cli
           command: |
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-
+      - run:
+          name: Install gzip
+          command: |
+            apk update
+            apk add --no-cache --upgrade gzip
       - run:
           name: Install tar
           command: |
             apk add --no-cache tar
-            fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/main/x86_64/APKINDEX.tar.gz
-            fetch http://dl-cdn.alpinelinux.org/alpine/v3.8/community/x86_64/APKINDEX.tar.gz
 
       - run:
           name: Configure server
