@@ -229,7 +229,6 @@ jobs:
             pwd
             ls -la
             sudo npm install typescript --save-dev
-            tsc -v
             npm run migrations | tee migrations-${CIRCLE_WORKFLOW_ID}.txt
             cat migrations-${CIRCLE_WORKFLOW_ID}.txt
 
