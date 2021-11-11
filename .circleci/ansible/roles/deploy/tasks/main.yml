@@ -1,7 +1,7 @@
 ---
 - name: "extract zipped artifact."
   unarchive:
-    src: /root/project/artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz
+    src: /root/project/artifact.tar.gz
     dest: /home/ubuntu/
 
 - name: "start app."
