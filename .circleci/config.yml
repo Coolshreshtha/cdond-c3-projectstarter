@@ -445,7 +445,10 @@ jobs:
             # # fi
             for i in $STACKS[*]
               do
-                echo $i
+                if [[ $i =~ "${CIRCLE_WORKFLOW_ID:0:7}" ]]
+                  echo $i
+                else
+                  echo achooo$i
               done
 
 workflows:
