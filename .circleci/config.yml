@@ -431,22 +431,22 @@ jobs:
           name: delete old stacks
           command: |
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-            # Fetch the stack names          
-            export BACKEND_IP=$( aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            --output text )
-            echo ${BACKEND_IP}
+            # Fetch the stack names    
+
+            export STACKS=$( aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+            --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+            echo Stack names: "$STACKS[@]"
+
             # if [[ "${STACKS[@]}" =~ "${CIRCLE_WORKFLOW_ID:0:7} ]]
             # then
             #   aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
             #   aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
             #   aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-            # fi
-            for i in ${STACKS[@]}
-              do
-                echo "um"
-              done
+            # # fi
+            # for i in ${STACKS[@]}
+            #   do
+            #     echo "um"
+            #   done
 
 workflows:
   default:
