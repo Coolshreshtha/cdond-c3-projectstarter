@@ -327,12 +327,16 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Install curl
           command: |
             apk update
             apk upgrade
             RUN apk --no-cache add curl
             curl --version
+      - run:
+          name: Install aws-cli
+          command: |
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
 
       - run:
           name: Get backend url
