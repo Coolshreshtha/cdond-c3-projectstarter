@@ -331,7 +331,7 @@ jobs:
           command: |
             apk update
             apk upgrade
-            RUN apk --no-cache add curl
+            apk --no-cache add curl
             curl --version
       - run:
           name: Install aws-cli
