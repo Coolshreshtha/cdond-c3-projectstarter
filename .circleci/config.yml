@@ -430,20 +430,35 @@ jobs:
       - run:
           name: delete old stacks
           command: |
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-            # Fetch the stack names    
-            export OldWorkflowID=$(aws cloudformation \
+            # Fetch the Old workflow ID
+            export OLD_WORKFLOW=$(aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
             --no-paginate --output text)
-            echo OldWorkflowID: "${OldWorkflowID}"
 
-            export STACKS=$( aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-            --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
-            echo Stack names: "$STACKS[@]"
+            echo OLD_WORKFLOW: "${OLD_WORKFLOW}"
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            # Fetch the stack names          
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack names: "${STACKS[@]}"    
+
+            for OLD_WORKFLOW in "${STACKS[@]}"; do
+              if [[ $OLD_WORKFLOW =~ "${CIRCLE_WORKFLOW_ID:0:7}" ]]
+              then
+                echo "Current: $OLD_WORKFLOW"
+              else
+                export PREV_STACK=${OLD_WORKFLOW: -7}
+                aws s3 rm "s3://udapeople-${PREV_STACK}" --recursive
+                aws cloudformation delete-stack --stack-name "udapeople-backend-${PREV_STACK}"
+                aws cloudformation delete-stack --stack-name "udapeople-frontend-${PREV_STACK}"
+              fi
+            done
+
+
 
             # if [[ "${STACKS[@]}" =~ "${CIRCLE_WORKFLOW_ID:0:7} ]]
             # then
-            #   aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+            #   aws s3 rm "s3://udapeople-${OLD_WORKFLOW}" --recursive
             #   aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
             #   aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             # # fi
