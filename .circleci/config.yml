@@ -457,8 +457,9 @@ jobs:
             #       aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             #     fi
             #   done
-            export WORDS=$( echo $OldWorkflowID | tr "-" )
-            for i in $WORDS[*]
+            IFS='-' read -ra ADDR <<< "$OldWorkflowID"
+            # export WORDS=$( echo $OldWorkflowID | tr "-" )
+            for i in $ADDR
               do
                 echo $i
               done
