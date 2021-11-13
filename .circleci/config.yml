@@ -449,7 +449,7 @@ jobs:
             # # fi
             for i in $STACKS[*]
               do
-                if [[ $i != "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" ] || ]
+                if [[ $i != "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" ] && [ $i != "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" ] && [ $i != "InitialStack" ]]
                 then
                   echo $i
                   echo achooo$i
