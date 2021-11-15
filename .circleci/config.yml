@@ -384,6 +384,11 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+          name: install tar and gzip
+          command: | #yum because amazon linux
+            yum install -y tar
+            yum install -y gzip
       - attach_workspace:
           at: ~/
       - run:
@@ -391,12 +396,6 @@ jobs:
           command: |
             curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
             yum -y install nodejs
-            - run:
-      - run:
-          name: install tar and gzip
-          command: | #yum because amazon linux
-            yum install -y tar
-            yum install -y gzip
 
       - run:
           name: Save old workflow ID
